@@ -30,6 +30,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
+          cache-dependency-path: currency-converter/package-lock.json
 
       # Install dependencies
       - name: Install dependencies
