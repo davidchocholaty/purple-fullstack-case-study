@@ -3,10 +3,10 @@ name: Backend CI
 on:
   push:
     paths:
-      - "backend/**"
+      - "currency-converter/backend/**"
   pull_request:
     paths:
-      - "backend/**"
+      - "currency-converter/backend/**"
 
 permissions:
   contents: read
@@ -33,25 +33,25 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        working-directory: backend
+        working-directory: currency-converter/backend
         run: npm ci
 
       # Lint backend code
       - name: Run ESLint
-        working-directory: backend
+        working-directory: currency-converter/backend
         run: npm run lint
 
       # Type checking
       - name: Run TypeScript type check
-        working-directory: backend
+        working-directory: currency-converter/backend
         run: npm run type-check
 
       # Run tests
       - name: Run tests
-        working-directory: backend
+        working-directory: currency-converter/backend
         run: npm test -- --ci --reporters=default --reporters=jest-junit
 
       # Optional: build (if you compile backend TS)
       - name: Build backend
-        working-directory: backend
+        working-directory: currency-converter/backend
         run: npm run build

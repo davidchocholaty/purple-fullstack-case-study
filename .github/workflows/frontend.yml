@@ -3,10 +3,10 @@ name: Frontend CI
 on:
   push:
     paths:
-      - "frontend/**"
+      - "currency-converter/frontend/**"
   pull_request:
     paths:
-      - "frontend/**"
+      - "currency-converter/frontend/**"
 
 permissions:
   contents: read
@@ -33,25 +33,25 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: currency-converter/frontend
         run: npm ci
 
       # Lint
       - name: Run ESLint
-        working-directory: frontend
+        working-directory: currency-converter/frontend
         run: npm run lint
 
       # Type checking (TypeScript)
       - name: Run TypeScript type check
-        working-directory: frontend
+        working-directory: currency-converter/frontend
         run: npm run type-check
 
       # Run tests (e.g. Jest or Vitest)
       - name: Run tests
-        working-directory: frontend
+        working-directory: currency-converter/frontend
         run: npm test -- --ci --reporters=default --reporters=jest-junit
 
       # Build Next.js app
       - name: Build Next.js app
-        working-directory: frontend
+        working-directory: currency-converter/frontend
         run: npm run build
