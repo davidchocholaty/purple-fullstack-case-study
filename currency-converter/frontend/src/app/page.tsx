@@ -9,21 +9,16 @@ export default function Page() {
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
 
-  const handleFromCurrencyChange = (value: string) => {
-    setFromCurrency(value);
-    if (value === toCurrency) {
-      // If same currency selected, change the other dropdown
-      const availableCurrencies = CURRENCIES.filter((c) => c !== value);
-      setToCurrency(availableCurrencies[0] || CURRENCIES[0]);
-    }
-  };
+  const handleCurrencyChange = (type: "from" | "to", value: string) => {
+    const otherCurrency = type === "from" ? toCurrency : fromCurrency;
+    const setThisCurrency = type === "from" ? setFromCurrency : setToCurrency;
+    const setOtherCurrency = type === "from" ? setToCurrency : setFromCurrency;
 
-  const handleToCurrencyChange = (value: string) => {
-    setToCurrency(value);
-    if (value === fromCurrency) {
-      // If same currency selected, change the other dropdown
+    setThisCurrency(value);
+    
+    if (value === otherCurrency) {
       const availableCurrencies = CURRENCIES.filter((c) => c !== value);
-      setFromCurrency(availableCurrencies[0] || CURRENCIES[0]);
+      setOtherCurrency(availableCurrencies[0] || CURRENCIES[0]);
     }
   };
 
@@ -49,11 +44,11 @@ export default function Page() {
           <div className="field">
             <label className="field-label" htmlFor="fromCurrency">From</label>
             <div className="currency-select-box">
-              <select
-                id="fromCurrency"
-                value={fromCurrency}
-                onChange={(e) => handleFromCurrencyChange(e.target.value)}
-              >
+            <select
+              id="fromCurrency"
+              value={fromCurrency}
+              onChange={(e) => handleCurrencyChange("from", e.target.value)}
+            >
                 {CURRENCIES.map((currency) => (
                   <option key={currency} value={currency}>
                     {currency}
@@ -65,11 +60,11 @@ export default function Page() {
           <div className="field">
             <label className="field-label" htmlFor="toCurrency">To</label>
             <div className="currency-select-box">
-              <select
-                id="toCurrency"
-                value={toCurrency}
-                onChange={(e) => handleToCurrencyChange(e.target.value)}
-              >
+            <select
+              id="toCurrency"
+              value={toCurrency}
+              onChange={(e) => handleCurrencyChange("to", e.target.value)}
+            >
                 {CURRENCIES.map((currency) => (
                   <option key={currency} value={currency}>
                     {currency}
