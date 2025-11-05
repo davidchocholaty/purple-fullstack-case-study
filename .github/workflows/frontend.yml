@@ -1,0 +1,57 @@
+name: Frontend CI
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+  pull_request:
+    paths:
+      - "frontend/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      # Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Use correct Node.js version
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Lint
+      - name: Run ESLint
+        working-directory: frontend
+        run: npm run lint
+
+      # Type checking (TypeScript)
+      - name: Run TypeScript type check
+        working-directory: frontend
+        run: npm run type-check
+
+      # Run tests (e.g. Jest or Vitest)
+      - name: Run tests
+        working-directory: frontend
+        run: npm test -- --ci --reporters=default --reporters=jest-junit
+
+      # Build Next.js app
+      - name: Build Next.js app
+        working-directory: frontend
+        run: npm run build
