@@ -111,8 +111,9 @@ export default function Page() {
 
     // Budget mode validation
     if (mode === "budget") {
-      if (wallet[fromCurrency] < amountNum) {
-        setError(`Insufficient ${fromCurrency} balance. Available: ${wallet[fromCurrency].toFixed(2)}`);
+      if (!wallet[fromCurrency] || wallet[fromCurrency] < amountNum) {
+        const available = wallet[fromCurrency] !== undefined ? wallet[fromCurrency].toFixed(2) : "0.00";
+        setError(`Insufficient ${fromCurrency} balance. Available: ${available}`);
         return;
       }
     }
