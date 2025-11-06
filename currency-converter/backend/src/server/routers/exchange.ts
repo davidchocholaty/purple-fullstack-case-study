@@ -2,6 +2,7 @@
 import { publicProcedure, router } from "../trpc.js";
 import { z } from "zod";
 import axios from "axios";
+import { dbOperations } from "../db/database.js";
 
 const OXR_BASE_URL = "https://openexchangerates.org/api";
 const OXR_APP_ID = process.env.OXR_APP_ID!;
@@ -59,6 +60,15 @@ export const exchangeRouter = router({
       const conversionRate = rates[to] / rates[from];
       const convertedAmount = amount * conversionRate;
 
+      // Save conversion to database
+      dbOperations.insertConversion({
+        fromCurrency: from,
+        toCurrency: to,
+        amount,
+        convertedAmount,
+        rate: conversionRate,
+      });
+
       return {
         from,
         to,
@@ -67,5 +77,15 @@ export const exchangeRouter = router({
         rate: conversionRate,
         updatedAt: new Date(response.data.timestamp * 1000),
       };
+    }),
+
+  getStatistics: publicProcedure
+    .query(() => {
+      return dbOperations.getStatistics();
+    }),
+
+  getConversionCount: publicProcedure
+    .query(() => {
+      return { count: dbOperations.getConversionCount() };
     }),
 });

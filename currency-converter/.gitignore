@@ -43,3 +43,6 @@ yarn-error.log*
 
 *.tsbuildinfo
 *.junit.xml
+
+# Ignore database files
+backend/data/*.db

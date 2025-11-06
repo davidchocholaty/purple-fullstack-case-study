@@ -3,6 +3,7 @@ import express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./server/routers/_app.js";
 import { createContext } from "./server/context.js";
+import { dbOperations } from "./server/db/database.js";
 
 const app = express();
 
@@ -57,6 +58,26 @@ app.post("/api/convert", async (req, res) => {
     res.status(500).json({
       error: error instanceof Error ? error.message : "Failed to convert currency"
     });
+  }
+});
+
+app.get("/api/stats/count", async (_req, res) => {
+  try {
+    const count = dbOperations.getConversionCount();
+    res.json({ count });
+  } catch (error) {
+    console.error("Error fetching count:", error);
+    res.status(500).json({ error: "Failed to fetch conversion count" });
+  }
+});
+
+app.get("/api/stats", async (_req, res) => {
+  try {
+    const stats = dbOperations.getStatistics();
+    res.json(stats);
+  } catch (error) {
+    console.error("Error fetching statistics:", error);
+    res.status(500).json({ error: "Failed to fetch statistics" });
   }
 });
 

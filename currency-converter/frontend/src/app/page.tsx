@@ -9,7 +9,7 @@ export default function Page() {
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
-  const [conversionCount, setConversionCount] = useState(0);
+  const [conversionCount, setConversionCount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +54,13 @@ export default function Page() {
 
       const data = await response.json();
       setConvertedAmount(data.convertedAmount);
-      setConversionCount((prev) => prev + 1);
+      
+      // Fetch updated conversion count from database
+      const countResponse = await fetch("http://localhost:4000/api/stats/count");
+      if (countResponse.ok) {
+        const countData = await countResponse.json();
+        setConversionCount(countData.count);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -135,7 +141,7 @@ export default function Page() {
           <div className="result-divider"></div>
           <div className="result-text-bottom">
             <div className="result-label">Number of calculations made</div>
-            <div className="result-value">{conversionCount}</div>
+            <div className="result-value">{conversionCount ?? 0}</div>
           </div>
         </div>
       )}
