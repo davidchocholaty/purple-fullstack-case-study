@@ -18,7 +18,18 @@ export const createTableSQL = `
     convertedAmount REAL NOT NULL,
     rate REAL NOT NULL,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
+  );
+
+  CREATE TABLE IF NOT EXISTS wallet (
+    currency TEXT PRIMARY KEY,
+    balance REAL NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS wallet_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    reset_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `;
 
 export const createIndexSQL = `

@@ -61,6 +61,116 @@ html {
   text-align: center;
 }
 
+/* Mode toggle */
+.mode-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mode-button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 2px solid #522473;
+  background: transparent;
+  color: #522473;
+  font-family: Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-button:hover {
+  background: rgba(82, 36, 115, 0.1);
+}
+
+.mode-button.active {
+  background: #522473;
+  color: #ffffff;
+}
+
+/* Wallet display */
+.wallet-display {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0px 0px 13px 0px #00000045;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 20px;
+}
+
+.wallet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.wallet-title {
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #141414;
+  margin: 0;
+}
+
+.reset-wallet-button {
+  background: linear-gradient(135deg, #7B3A9E 0%, #522473 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 2px 8px 0px rgba(82, 36, 115, 0.3);
+}
+
+.reset-wallet-button:hover {
+  background: linear-gradient(135deg, #522473 0%, #3a1a54 100%);
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px 0px rgba(82, 36, 115, 0.4);
+}
+
+.reset-wallet-button:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 6px 0px rgba(82, 36, 115, 0.3);
+}
+
+.wallet-balances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.wallet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  border-left: 3px solid #522473;
+}
+
+.wallet-currency {
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #522473;
+}
+
+.wallet-balance {
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #141414;
+}
+
 .currency-box {
   background: #522473;
   box-shadow: 0px 0px 13px 0px #00000045;
@@ -134,6 +244,13 @@ html {
   cursor: pointer;
 }
 
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .convert-button {
   background: #522473;
   width: 167px;
@@ -151,6 +268,12 @@ html {
   font-size: 15px;
   color: #ffffff;
   margin-top: 12px;
+}
+
+.convert-all-button {
+  background: #7B3A9E;
+  width: auto;
+  padding: 0 20px;
 }
 
 .convert-button:hover {
@@ -242,6 +365,9 @@ html {
   letter-spacing: 0%;
   text-align: left;
   color: #141414;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* History table */

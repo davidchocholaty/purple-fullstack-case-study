@@ -71,6 +71,35 @@ const getTargetCurrencyFrequencyStmt = db.prepare(`
   ORDER BY count DESC
 `);
 
+// Wallet statements
+const getWalletStmt = db.prepare(`
+  SELECT currency, balance FROM wallet
+`);
+
+const getWalletBalanceStmt = db.prepare(`
+  SELECT balance FROM wallet WHERE currency = ?
+`);
+
+const upsertWalletBalanceStmt = db.prepare(`
+  INSERT INTO wallet (currency, balance, updated_at)
+  VALUES (?, ?, CURRENT_TIMESTAMP)
+  ON CONFLICT(currency) DO UPDATE SET 
+    balance = excluded.balance,
+    updated_at = CURRENT_TIMESTAMP
+`);
+
+const deleteAllWalletStmt = db.prepare(`
+  DELETE FROM wallet
+`);
+
+const insertWalletResetStmt = db.prepare(`
+  INSERT INTO wallet_resets (reset_at) VALUES (CURRENT_TIMESTAMP)
+`);
+
+// Constants for wallet balance generation
+const MIN_INITIAL_BALANCE = 1000;
+const MAX_INITIAL_BALANCE = 10999;
+
 // Database operations
 export const dbOperations = {
   // Insert a new conversion record
@@ -115,6 +144,44 @@ export const dbOperations = {
   // Get target currency frequency
   getTargetCurrencyFrequency(): Array<{ currency: string; count: number }> {
     return getTargetCurrencyFrequencyStmt.all() as Array<{ currency: string; count: number }>;
+  },
+
+  // Wallet operations
+  getWallet(): Record<string, number> {
+    const rows = getWalletStmt.all() as Array<{ currency: string; balance: number }>;
+    const wallet: Record<string, number> = {};
+    rows.forEach((row) => {
+      wallet[row.currency] = row.balance;
+    });
+    return wallet;
+  },
+
+  getWalletBalance(currency: string): number {
+    const result = getWalletBalanceStmt.get(currency) as { balance: number } | undefined;
+    return result?.balance ?? 0;
+  },
+
+  updateWalletBalance(currency: string, balance: number) {
+    return upsertWalletBalanceStmt.run(currency, balance);
+  },
+
+  initializeWallet(currencies: string[]) {
+    const generateRandomBalance = () => 
+      Math.floor(Math.random() * (MAX_INITIAL_BALANCE - MIN_INITIAL_BALANCE + 1)) + MIN_INITIAL_BALANCE;
+    currencies.forEach((currency) => {
+      upsertWalletBalanceStmt.run(currency, generateRandomBalance());
+    });
+    insertWalletResetStmt.run();
+  },
+
+  resetWallet(currencies: string[]) {
+    deleteAllWalletStmt.run();
+    this.initializeWallet(currencies);
+  },
+
+  isWalletInitialized(): boolean {
+    const wallet = this.getWallet();
+    return Object.keys(wallet).length > 0;
   },
 
   // Get all statistics
