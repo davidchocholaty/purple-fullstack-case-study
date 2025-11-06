@@ -101,13 +101,13 @@ export default function Page() {
     }
   };
 
-  const handleConvert = async () => {
-    if (!amount || parseFloat(amount) <= 0) {
+  const handleConvert = async (amountOverride?: number) => {
+    const amountNum = amountOverride ?? parseFloat(amount);
+    
+    if (!amountNum || amountNum <= 0) {
       setError("Please enter a valid amount");
       return;
     }
-
-    const amountNum = parseFloat(amount);
 
     // Budget mode validation
     if (mode === "budget") {
@@ -182,8 +182,8 @@ export default function Page() {
       return;
     }
 
-    setAmount(amountToConvert.toString());
-    await handleConvert();
+    // Pass amount directly to avoid race condition
+    await handleConvert(amountToConvert);
   };
 
   const handleResetWallet = async () => {
@@ -302,7 +302,7 @@ export default function Page() {
         <button 
           className="convert-button" 
           type="button"
-          onClick={handleConvert}
+          onClick={() => handleConvert()}
           disabled={isLoading}
         >
           {isLoading ? "Converting..." : "Convert currency"}
