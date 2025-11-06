@@ -8,6 +8,10 @@ export default function Page() {
   const [amount, setAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
+  const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
+  const [conversionCount, setConversionCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCurrencyChange = (type: "from" | "to", value: string) => {
     const otherCurrency = type === "from" ? toCurrency : fromCurrency;
@@ -19,6 +23,42 @@ export default function Page() {
     if (value === otherCurrency) {
       const availableCurrencies = CURRENCIES.filter((c) => c !== value);
       setOtherCurrency(availableCurrencies[0] || CURRENCIES[0]);
+    }
+  };
+
+  const handleConvert = async () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:4000/api/convert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromCurrency,
+          to: toCurrency,
+          amount: parseFloat(amount),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to convert currency");
+      }
+
+      const data = await response.json();
+      setConvertedAmount(data.convertedAmount);
+      setConversionCount((prev) => prev + 1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,20 +115,30 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <button className="convert-button" type="button">
-        Convert currency
+      <button 
+        className="convert-button" 
+        type="button"
+        onClick={handleConvert}
+        disabled={isLoading}
+      >
+        {isLoading ? "Converting..." : "Convert currency"}
       </button>
-      <div className="result-box">
-        <div className="result-text-top">
-          <div className="result-label">Result</div>
-          <div className="result-value">4 942,52 CZK</div>
+      {error && <div className="error-message">{error}</div>}
+      {convertedAmount !== null && (
+        <div className="result-box">
+          <div className="result-text-top">
+            <div className="result-label">Result</div>
+            <div className="result-value">
+              {convertedAmount.toFixed(2)} {toCurrency}
+            </div>
+          </div>
+          <div className="result-divider"></div>
+          <div className="result-text-bottom">
+            <div className="result-label">Number of calculations made</div>
+            <div className="result-value">{conversionCount}</div>
+          </div>
         </div>
-        <div className="result-divider"></div>
-        <div className="result-text-bottom">
-          <div className="result-label">Number of calculations made</div>
-          <div className="result-value">3</div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
