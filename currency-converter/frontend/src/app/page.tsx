@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const CurrencyFrequencyChart = dynamic(() => import("../components/ConversionsChart"), {
+  ssr: false,
+});
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"];
 
@@ -9,7 +14,29 @@ export default function Page() {
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
-  const [conversionCount, setConversionCount] = useState(0);
+  const [conversionCount, setConversionCount] = useState<number | null>(null);
+  const [mostUsedCurrency, setMostUsedCurrency] = useState<string | null>(null);
+  const [recentConversions, setRecentConversions] = useState<Array<{
+    id: number;
+    fromCurrency: string;
+    toCurrency: string;
+    amount: number;
+    convertedAmount: number;
+    rate: number;
+    timestamp: string;
+  }>>([]);
+  const [currencyPairStats, setCurrencyPairStats] = useState<Array<{
+    fromCurrency: string;
+    toCurrency: string;
+    conversion_count: number;
+    avg_amount: number;
+    first_conversion: string;
+    last_conversion: string;
+  }>>([]);
+  const [targetCurrencyFrequency, setTargetCurrencyFrequency] = useState<Array<{
+    currency: string;
+    count: number;
+  }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +81,17 @@ export default function Page() {
 
       const data = await response.json();
       setConvertedAmount(data.convertedAmount);
-      setConversionCount((prev) => prev + 1);
+      
+      // Fetch updated statistics from database
+      const statsResponse = await fetch("http://localhost:4000/api/stats");
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setConversionCount(statsData.totalConversions);
+        setMostUsedCurrency(statsData.mostUsedCurrency?.currency || null);
+        setRecentConversions(statsData.recentConversions || []);
+        setCurrencyPairStats(statsData.currencyPairStats || []);
+        setTargetCurrencyFrequency(statsData.targetCurrencyFrequency || []);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -135,8 +172,81 @@ export default function Page() {
           <div className="result-divider"></div>
           <div className="result-text-bottom">
             <div className="result-label">Number of calculations made</div>
-            <div className="result-value">{conversionCount}</div>
+            <div className="result-value">{conversionCount ?? 0}</div>
           </div>
+          {mostUsedCurrency && (
+            <>
+              <div className="result-divider"></div>
+              <div className="result-text-bottom">
+                <div className="result-label">Most used currency</div>
+                <div className="result-value">{mostUsedCurrency}</div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {targetCurrencyFrequency.length > 0 && (
+        <div className="history-table-container">
+          <h2 className="history-title">Target Currency Distribution</h2>
+          <CurrencyFrequencyChart data={targetCurrencyFrequency} />
+        </div>
+      )}
+      {recentConversions.length > 0 && (
+        <div className="history-table-container">
+          <h2 className="history-title">Recent Conversions</h2>
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>Result</th>
+                <th>Rate</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentConversions.map((conversion) => (
+                <tr key={conversion.id}>
+                  <td>{conversion.fromCurrency}</td>
+                  <td>{conversion.toCurrency}</td>
+                  <td>{conversion.amount.toFixed(2)}</td>
+                  <td>{conversion.convertedAmount.toFixed(2)}</td>
+                  <td>{conversion.rate.toFixed(4)}</td>
+                  <td>{new Date(conversion.timestamp).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {currencyPairStats.length > 0 && (
+        <div className="history-table-container">
+          <h2 className="history-title">Currency Pair Statistics</h2>
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Conversions</th>
+                <th>Avg Amount</th>
+                <th>First Used</th>
+                <th>Last Used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currencyPairStats.map((stat, index) => (
+                <tr key={`${stat.fromCurrency}-${stat.toCurrency}-${index}`}>
+                  <td>{stat.fromCurrency}</td>
+                  <td>{stat.toCurrency}</td>
+                  <td>{stat.conversion_count}</td>
+                  <td>{stat.avg_amount.toFixed(2)}</td>
+                  <td>{new Date(stat.first_conversion).toLocaleString()}</td>
+                  <td>{new Date(stat.last_conversion).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
