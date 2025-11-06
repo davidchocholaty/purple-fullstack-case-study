@@ -234,7 +234,7 @@ export default function Page() {
               onClick={handleResetWallet}
               type="button"
             >
-              Reset Wallet
+              Regenerate Wallet
             </button>
           </div>
           <div className="wallet-balances">
