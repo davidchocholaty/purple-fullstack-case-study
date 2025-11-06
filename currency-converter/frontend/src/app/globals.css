@@ -333,6 +333,9 @@ html {
   letter-spacing: 0%;
   text-align: left;
   color: #141414;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* History table */
