@@ -62,6 +62,15 @@ const getCurrencyPairStatsStmt = db.prepare(`
   ORDER BY conversion_count DESC
 `);
 
+const getTargetCurrencyFrequencyStmt = db.prepare(`
+  SELECT 
+    toCurrency as currency,
+    COUNT(*) as count
+  FROM conversions
+  GROUP BY toCurrency
+  ORDER BY count DESC
+`);
+
 // Database operations
 export const dbOperations = {
   // Insert a new conversion record
@@ -103,18 +112,25 @@ export const dbOperations = {
     }>;
   },
 
+  // Get target currency frequency
+  getTargetCurrencyFrequency(): Array<{ currency: string; count: number }> {
+    return getTargetCurrencyFrequencyStmt.all() as Array<{ currency: string; count: number }>;
+  },
+
   // Get all statistics
   getStatistics() {
     const totalConversions = this.getConversionCount();
     const mostUsedCurrency = this.getMostUsedCurrency();
     const recentConversions = this.getRecentConversions(5);
     const currencyPairStats = this.getCurrencyPairStats();
+    const targetCurrencyFrequency = this.getTargetCurrencyFrequency();
 
     return {
       totalConversions,
       mostUsedCurrency,
       recentConversions,
       currencyPairStats,
+      targetCurrencyFrequency,
     };
   },
 };
