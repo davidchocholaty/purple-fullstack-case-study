@@ -45,4 +45,4 @@ yarn-error.log*
 *.junit.xml
 
 # Ignore database files
-backend/data/*.db
+backend/data/*
