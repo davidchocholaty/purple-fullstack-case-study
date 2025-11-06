@@ -9,7 +9,21 @@ const CurrencyFrequencyChart = dynamic(() => import("../components/ConversionsCh
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"];
 
+// Generate random initial balance for a currency
+const generateRandomBalance = () => Math.floor(Math.random() * 10000) + 1000;
+
+// Initialize wallet with random balances
+const initializeWallet = () => {
+  const wallet: Record<string, number> = {};
+  CURRENCIES.forEach((currency) => {
+    wallet[currency] = generateRandomBalance();
+  });
+  return wallet;
+};
+
 export default function Page() {
+  const [mode, setMode] = useState<"basic" | "budget">("basic");
+  const [wallet, setWallet] = useState<Record<string, number>>(initializeWallet());
   const [amount, setAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
@@ -59,6 +73,16 @@ export default function Page() {
       return;
     }
 
+    const amountNum = parseFloat(amount);
+
+    // Budget mode validation
+    if (mode === "budget") {
+      if (wallet[fromCurrency] < amountNum) {
+        setError(`Insufficient ${fromCurrency} balance. Available: ${wallet[fromCurrency].toFixed(2)}`);
+        return;
+      }
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -71,7 +95,7 @@ export default function Page() {
         body: JSON.stringify({
           from: fromCurrency,
           to: toCurrency,
-          amount: parseFloat(amount),
+          amount: amountNum,
         }),
       });
 
@@ -81,6 +105,15 @@ export default function Page() {
 
       const data = await response.json();
       setConvertedAmount(data.convertedAmount);
+
+      // Update wallet in budget mode
+      if (mode === "budget") {
+        setWallet((prev) => ({
+          ...prev,
+          [fromCurrency]: prev[fromCurrency] - amountNum,
+          [toCurrency]: prev[toCurrency] + data.convertedAmount,
+        }));
+      }
       
       // Fetch updated statistics from database
       const statsResponse = await fetch("http://localhost:4000/api/stats");
@@ -99,9 +132,51 @@ export default function Page() {
     }
   };
 
+  const handleConvertAll = async () => {
+    const amountToConvert = wallet[fromCurrency];
+    
+    if (amountToConvert <= 0) {
+      setError(`No ${fromCurrency} balance to convert`);
+      return;
+    }
+
+    setAmount(amountToConvert.toString());
+    await handleConvert();
+  };
+
   return (
     <div className="app-container">
-      <h1 className="page-title">Purple currency converter</h1>
+      <h1 className="page-title">Purple Currency Converter</h1>
+      
+      <div className="mode-toggle">
+        <button 
+          className={`mode-button ${mode === "basic" ? "active" : ""}`}
+          onClick={() => setMode("basic")}
+        >
+          Basic Mode
+        </button>
+        <button 
+          className={`mode-button ${mode === "budget" ? "active" : ""}`}
+          onClick={() => setMode("budget")}
+        >
+          Budget Mode
+        </button>
+      </div>
+
+      {mode === "budget" && (
+        <div className="wallet-display">
+          <h3 className="wallet-title">Your Wallet</h3>
+          <div className="wallet-balances">
+            {CURRENCIES.map((currency) => (
+              <div key={currency} className="wallet-item">
+                <span className="wallet-currency">{currency}</span>
+                <span className="wallet-balance">{wallet[currency].toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="currency-box">
         <div className="currency-box-content">
           <div className="field">
@@ -152,14 +227,26 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <button 
-        className="convert-button" 
-        type="button"
-        onClick={handleConvert}
-        disabled={isLoading}
-      >
-        {isLoading ? "Converting..." : "Convert currency"}
-      </button>
+      <div className="button-group">
+        <button 
+          className="convert-button" 
+          type="button"
+          onClick={handleConvert}
+          disabled={isLoading}
+        >
+          {isLoading ? "Converting..." : "Convert currency"}
+        </button>
+        {mode === "budget" && (
+          <button 
+            className="convert-button convert-all-button" 
+            type="button"
+            onClick={handleConvertAll}
+            disabled={isLoading}
+          >
+            Convert All {fromCurrency}
+          </button>
+        )}
+      </div>
       {error && <div className="error-message">{error}</div>}
       {convertedAmount !== null && (
         <div className="result-box">
