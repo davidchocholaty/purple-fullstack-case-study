@@ -101,12 +101,44 @@ html {
   margin-bottom: 20px;
 }
 
+.wallet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .wallet-title {
   font-family: Roboto, sans-serif;
   font-weight: 700;
   font-size: 18px;
   color: #141414;
-  margin: 0 0 16px 0;
+  margin: 0;
+}
+
+.reset-wallet-button {
+  background: linear-gradient(135deg, #7B3A9E 0%, #522473 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 2px 8px 0px rgba(82, 36, 115, 0.3);
+}
+
+.reset-wallet-button:hover {
+  background: linear-gradient(135deg, #522473 0%, #3a1a54 100%);
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px 0px rgba(82, 36, 115, 0.4);
+}
+
+.reset-wallet-button:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 6px 0px rgba(82, 36, 115, 0.3);
 }
 
 .wallet-balances {

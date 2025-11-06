@@ -81,6 +81,64 @@ app.get("/api/stats", async (_req, res) => {
   }
 });
 
+app.get("/api/wallet", async (_req, res) => {
+  try {
+    const wallet = dbOperations.getWallet();
+    res.json({ wallet, initialized: dbOperations.isWalletInitialized() });
+  } catch (error) {
+    console.error("Error fetching wallet:", error);
+    res.status(500).json({ error: "Failed to fetch wallet" });
+  }
+});
+
+app.post("/api/wallet/initialize", async (req, res) => {
+  try {
+    const { currencies } = req.body;
+    if (!currencies || !Array.isArray(currencies)) {
+      return res.status(400).json({ error: "Invalid currencies array" });
+    }
+    dbOperations.initializeWallet(currencies);
+    const wallet = dbOperations.getWallet();
+    res.json({ wallet });
+  } catch (error) {
+    console.error("Error initializing wallet:", error);
+    res.status(500).json({ error: "Failed to initialize wallet" });
+  }
+});
+
+app.post("/api/wallet/reset", async (req, res) => {
+  try {
+    const { currencies } = req.body;
+    if (!currencies || !Array.isArray(currencies)) {
+      return res.status(400).json({ error: "Invalid currencies array" });
+    }
+    dbOperations.resetWallet(currencies);
+    const wallet = dbOperations.getWallet();
+    res.json({ wallet });
+  } catch (error) {
+    console.error("Error resetting wallet:", error);
+    res.status(500).json({ error: "Failed to reset wallet" });
+  }
+});
+
+app.post("/api/wallet/update", async (req, res) => {
+  try {
+    const { wallet } = req.body;
+    if (!wallet || typeof wallet !== "object") {
+      return res.status(400).json({ error: "Invalid wallet data" });
+    }
+    
+    Object.entries(wallet).forEach(([currency, balance]) => {
+      dbOperations.updateWalletBalance(currency, balance as number);
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+    res.status(500).json({ error: "Failed to update wallet" });
+  }
+});
+
 app.listen(4000, () => {
   console.log("Backend running on http://localhost:4000");
 });

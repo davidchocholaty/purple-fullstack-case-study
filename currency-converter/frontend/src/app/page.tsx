@@ -23,7 +23,8 @@ const initializeWallet = () => {
 
 export default function Page() {
   const [mode, setMode] = useState<"basic" | "budget">("basic");
-  const [wallet, setWallet] = useState<Record<string, number>>(initializeWallet());
+  const [wallet, setWallet] = useState<Record<string, number>>({});
+  const [walletLoaded, setWalletLoaded] = useState(false);
   const [amount, setAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
@@ -54,10 +55,32 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load initial stats on mount
+  // Load wallet and stats on mount
   useEffect(() => {
-    const loadInitialStats = async () => {
+    const loadInitialData = async () => {
       try {
+        // Load wallet
+        const walletResponse = await fetch("http://localhost:4000/api/wallet");
+        if (walletResponse.ok) {
+          const walletData = await walletResponse.json();
+          if (walletData.initialized) {
+            setWallet(walletData.wallet);
+          } else {
+            // Initialize wallet if not exists
+            const initResponse = await fetch("http://localhost:4000/api/wallet/initialize", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ currencies: CURRENCIES }),
+            });
+            if (initResponse.ok) {
+              const initData = await initResponse.json();
+              setWallet(initData.wallet);
+            }
+          }
+          setWalletLoaded(true);
+        }
+
+        // Load stats
         const statsResponse = await fetch("http://localhost:4000/api/stats");
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
@@ -70,11 +93,11 @@ export default function Page() {
           }
         }
       } catch (err) {
-        console.error("Failed to load initial stats:", err);
+        console.error("Failed to load initial data:", err);
       }
     };
 
-    loadInitialStats();
+    loadInitialData();
   }, []);
 
   const handleCurrencyChange = (type: "from" | "to", value: string) => {
@@ -131,11 +154,19 @@ export default function Page() {
 
       // Update wallet in budget mode
       if (mode === "budget") {
-        setWallet((prev) => ({
-          ...prev,
-          [fromCurrency]: prev[fromCurrency] - amountNum,
-          [toCurrency]: prev[toCurrency] + data.convertedAmount,
-        }));
+        const newWallet = {
+          ...wallet,
+          [fromCurrency]: wallet[fromCurrency] - amountNum,
+          [toCurrency]: wallet[toCurrency] + data.convertedAmount,
+        };
+        setWallet(newWallet);
+        
+        // Save wallet to database
+        await fetch("http://localhost:4000/api/wallet/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wallet: newWallet }),
+        });
       }
       
       // Fetch updated statistics from database
@@ -167,6 +198,26 @@ export default function Page() {
     await handleConvert();
   };
 
+  const handleResetWallet = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/api/wallet/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currencies: CURRENCIES }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setWallet(data.wallet);
+        setError(null);
+      } else {
+        setError("Failed to reset wallet");
+      }
+    } catch (err) {
+      setError("Failed to reset wallet");
+    }
+  };
+
   return (
     <div className="app-container">
       <h1 className="page-title">Purple Currency Converter</h1>
@@ -186,14 +237,23 @@ export default function Page() {
         </button>
       </div>
 
-      {mode === "budget" && (
+      {mode === "budget" && walletLoaded && (
         <div className="wallet-display">
-          <h3 className="wallet-title">Your Wallet</h3>
+          <div className="wallet-header">
+            <h3 className="wallet-title">Your Wallet</h3>
+            <button 
+              className="reset-wallet-button"
+              onClick={handleResetWallet}
+              type="button"
+            >
+              Reset Wallet
+            </button>
+          </div>
           <div className="wallet-balances">
             {CURRENCIES.map((currency) => (
               <div key={currency} className="wallet-item">
                 <span className="wallet-currency">{currency}</span>
-                <span className="wallet-balance">{wallet[currency].toFixed(2)}</span>
+                <span className="wallet-balance">{wallet[currency]?.toFixed(2) || "0.00"}</span>
               </div>
             ))}
           </div>
