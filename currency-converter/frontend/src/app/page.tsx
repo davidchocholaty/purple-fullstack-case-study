@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
 const CurrencyFrequencyChart = dynamic(() => import("../components/ConversionsChart"), {
@@ -53,6 +53,29 @@ export default function Page() {
   }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load initial stats on mount
+  useEffect(() => {
+    const loadInitialStats = async () => {
+      try {
+        const statsResponse = await fetch("http://localhost:4000/api/stats");
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          if (statsData.totalConversions > 0) {
+            setConversionCount(statsData.totalConversions);
+            setMostUsedCurrency(statsData.mostUsedCurrency?.currency || null);
+            setRecentConversions(statsData.recentConversions || []);
+            setCurrencyPairStats(statsData.currencyPairStats || []);
+            setTargetCurrencyFrequency(statsData.targetCurrencyFrequency || []);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load initial stats:", err);
+      }
+    };
+
+    loadInitialStats();
+  }, []);
 
   const handleCurrencyChange = (type: "from" | "to", value: string) => {
     const otherCurrency = type === "from" ? toCurrency : fromCurrency;
@@ -272,15 +295,17 @@ export default function Page() {
           )}
         </div>
       )}
-      {targetCurrencyFrequency.length > 0 && (
-        <div className="history-table-container">
-          <h2 className="history-title">Target Currency Distribution</h2>
-          <CurrencyFrequencyChart data={targetCurrencyFrequency} />
-        </div>
-      )}
-      {recentConversions.length > 0 && (
-        <div className="history-table-container">
-          <h2 className="history-title">Recent Conversions</h2>
+      {conversionCount !== null && conversionCount > 0 && (
+        <>
+          {targetCurrencyFrequency.length > 0 && (
+            <div className="history-table-container">
+              <h2 className="history-title">Target Currency Distribution</h2>
+              <CurrencyFrequencyChart data={targetCurrencyFrequency} />
+            </div>
+          )}
+          {recentConversions.length > 0 && (
+            <div className="history-table-container">
+              <h2 className="history-title">Recent Conversions</h2>
           <table className="history-table">
             <thead>
               <tr>
@@ -305,11 +330,11 @@ export default function Page() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-      {currencyPairStats.length > 0 && (
-        <div className="history-table-container">
-          <h2 className="history-title">Currency Pair Statistics</h2>
+            </div>
+          )}
+          {currencyPairStats.length > 0 && (
+            <div className="history-table-container">
+              <h2 className="history-title">Currency Pair Statistics</h2>
           <table className="history-table">
             <thead>
               <tr>
@@ -334,7 +359,9 @@ export default function Page() {
               ))}
             </tbody>
           </table>
-        </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
