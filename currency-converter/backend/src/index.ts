@@ -127,6 +127,12 @@ app.post("/api/wallet/update", async (req, res) => {
     if (!wallet || typeof wallet !== "object") {
       return res.status(400).json({ error: "Invalid wallet data" });
     }
+
+    for (const [currency, balance] of Object.entries(wallet)) {
+      if (typeof balance !== "number" || balance < 0) {
+        return res.status(400).json({ error: `Invalid balance value for currency ${currency}` });
+      }
+    }
     
     Object.entries(wallet).forEach(([currency, balance]) => {
       dbOperations.updateWalletBalance(currency, balance as number);
