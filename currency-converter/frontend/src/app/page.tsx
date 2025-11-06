@@ -9,18 +9,6 @@ const CurrencyFrequencyChart = dynamic(() => import("../components/ConversionsCh
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"];
 
-// Generate random initial balance for a currency
-const generateRandomBalance = () => Math.floor(Math.random() * 10000) + 1000;
-
-// Initialize wallet with random balances
-const initializeWallet = () => {
-  const wallet: Record<string, number> = {};
-  CURRENCIES.forEach((currency) => {
-    wallet[currency] = generateRandomBalance();
-  });
-  return wallet;
-};
-
 export default function Page() {
   const [mode, setMode] = useState<"basic" | "budget">("basic");
   const [wallet, setWallet] = useState<Record<string, number>>({});
@@ -213,7 +201,7 @@ export default function Page() {
       } else {
         setError("Failed to reset wallet");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to reset wallet");
     }
   };
