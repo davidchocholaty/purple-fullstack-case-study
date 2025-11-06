@@ -96,6 +96,10 @@ const insertWalletResetStmt = db.prepare(`
   INSERT INTO wallet_resets (reset_at) VALUES (CURRENT_TIMESTAMP)
 `);
 
+// Constants for wallet balance generation
+const MIN_INITIAL_BALANCE = 1000;
+const MAX_INITIAL_BALANCE = 10999;
+
 // Database operations
 export const dbOperations = {
   // Insert a new conversion record
@@ -162,7 +166,8 @@ export const dbOperations = {
   },
 
   initializeWallet(currencies: string[]) {
-    const generateRandomBalance = () => Math.floor(Math.random() * 10000) + 1000;
+    const generateRandomBalance = () => 
+      Math.floor(Math.random() * (MAX_INITIAL_BALANCE - MIN_INITIAL_BALANCE + 1)) + MIN_INITIAL_BALANCE;
     currencies.forEach((currency) => {
       upsertWalletBalanceStmt.run(currency, generateRandomBalance());
     });
