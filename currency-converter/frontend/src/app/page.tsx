@@ -143,6 +143,7 @@ export default function Page() {
 
       // Update wallet in budget mode
       if (mode === "budget") {
+        const oldWallet = { ...wallet };
         const newWallet = {
           ...wallet,
           [fromCurrency]: (wallet[fromCurrency] || 0) - amountNum,
@@ -151,11 +152,23 @@ export default function Page() {
         setWallet(newWallet);
         
         // Save wallet to database
-        await fetch("http://localhost:4000/api/wallet/update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ wallet: newWallet }),
-        });
+        try {
+          const walletResponse = await fetch("http://localhost:4000/api/wallet/update", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ wallet: newWallet }),
+          });
+          
+          if (!walletResponse.ok) {
+            // Revert wallet on failure
+            setWallet(oldWallet);
+            setError("Conversion succeeded but failed to save wallet. Balances reverted.");
+          }
+        } catch {
+          // Revert wallet on error
+          setWallet(oldWallet);
+          setError("Conversion succeeded but failed to save wallet. Balances reverted.");
+        }
       }
       
       // Fetch updated statistics from database
