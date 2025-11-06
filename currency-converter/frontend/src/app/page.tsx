@@ -144,8 +144,8 @@ export default function Page() {
       if (mode === "budget") {
         const newWallet = {
           ...wallet,
-          [fromCurrency]: wallet[fromCurrency] - amountNum,
-          [toCurrency]: wallet[toCurrency] + data.convertedAmount,
+          [fromCurrency]: (wallet[fromCurrency] || 0) - amountNum,
+          [toCurrency]: (wallet[toCurrency] || 0) + data.convertedAmount,
         };
         setWallet(newWallet);
         
