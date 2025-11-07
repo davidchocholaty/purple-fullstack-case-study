@@ -16,7 +16,7 @@ This tutorial was tested on **Ubuntu 24.04.2 LTS**.
 
 ```bash
 git clone <repository-url>
-cd currency-converter/
+cd purple-fullstack-case-study/currency-converter/
 chmod +x setup.sh
 ./setup.sh
 ```
@@ -27,6 +27,10 @@ The script will:
 - Install frontend dependencies
 - Create `.env` template
 - Optionally configure your API key interactively
+
+#### ⚠️ IMPORTANT!
+
+You still need to set your ```OXR_APP_ID``` in the ```currency-converter/backend/.env``` file if not set interactively during the installation process.
 
 ### Manual Setup (Alternative)
 
