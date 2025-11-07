@@ -32,7 +32,7 @@ export default function Table<T>({
       <table className="history-table">
         <thead>
           <tr>
-            {columns.map((column, index) => (
+            {columns.map((column) => (
               <th key={column.header}>{column.header}</th>
             ))}
           </tr>
