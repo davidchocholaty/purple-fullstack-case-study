@@ -15,7 +15,7 @@ This tutorial was tested on **Ubuntu 24.04.2 LTS**.
 **Automated setup script:**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/davidchocholaty/purple-fullstack-case-study.git
 cd purple-fullstack-case-study/currency-converter/
 chmod +x setup.sh
 ./setup.sh
@@ -38,7 +38,7 @@ If you prefer manual setup or the script doesn't work:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/davidchocholaty/purple-fullstack-case-study.git
    cd purple-fullstack-case-study/currency-converter
    ```
 
