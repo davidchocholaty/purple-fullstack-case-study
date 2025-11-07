@@ -35,24 +35,19 @@ const generateColors = (count: number): string[] => {
     return BASE_COLORS.slice(0, count);
   }
   
-  // For more colors, interpolate between base colors
+  // For more colors, generate smooth gradient in purple theme
   const colors: string[] = [];
+  const baseHue = 285; // Purple
+  
   for (let i = 0; i < count; i++) {
-    const position = (i / (count - 1)) * (BASE_COLORS.length - 1);
-    const lowerIndex = Math.floor(position);
-    const upperIndex = Math.min(lowerIndex + 1, BASE_COLORS.length - 1);
-    const fraction = position - lowerIndex;
+    // Map index to position in base palette range
+    const palettePosition = (i / (count - 1)) * (BASE_COLORS.length - 1);
     
-    // Simple interpolation for now, or just cycle through
-    if (fraction === 0 || lowerIndex === upperIndex) {
-      colors.push(BASE_COLORS[lowerIndex]);
-    } else {
-      // Interpolate using HSL for smooth gradient
-      const baseHue = 285;
-      const saturation = 40 + (i % 3) * 10;
-      const lightness = 25 + (i * (65 / count));
-      colors.push(`hsl(${baseHue}, ${saturation}%, ${lightness}%)`);
-    }
+    // Vary saturation and lightness to create distinct colors
+    const saturation = 45 + ((i * 15) % 25);
+    const lightness = 25 + (palettePosition * 8);
+    
+    colors.push(`hsl(${baseHue}, ${saturation}%, ${lightness}%)`);
   }
   
   return colors;
