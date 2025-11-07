@@ -15,7 +15,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const { from, to, amount } = req.body;
 
-    if (!from || !to || !amount) {
+    if (!from || !to || !amount || typeof from !== "string" || typeof to !== "string") {
       res.status(400);
       throw new Error("Missing required parameters: from, to, amount");
     }
