@@ -4,10 +4,11 @@
  */
 
 import axios from "axios";
+import { config } from "../config/index.js";
 
-const OXR_BASE_URL = "https://openexchangerates.org/api";
-const OXR_APP_ID = process.env.OXR_APP_ID!;
-const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+const OXR_BASE_URL = config.oxrBaseUrl;
+const OXR_APP_ID = config.oxrApiKey;
+const CACHE_DURATION_MS = config.exchangeRateCacheDuration;
 
 interface ExchangeRatesCache {
   rates: Record<string, number>;
