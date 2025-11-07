@@ -16,7 +16,8 @@ This tutorial was tested on **Ubuntu 24.04.2 LTS**.
 
 ```bash
 git clone <repository-url>
-cd purple-fullstack-case-study/currency-converter
+cd currency-converter/
+chmod +x setup.sh
 ./setup.sh
 ```
 
