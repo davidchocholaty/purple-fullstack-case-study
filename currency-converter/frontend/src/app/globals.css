@@ -457,6 +457,16 @@ html {
   max-width: 100%;
 }
 
+.result-timestamp {
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 100%;
+  color: #666666;
+  margin-top: 8px;
+  font-style: italic;
+}
+
 /* History table */
 .history-table-container {
   margin-top: 40px;
