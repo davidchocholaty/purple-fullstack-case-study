@@ -30,8 +30,13 @@ const CHART_COLORS = [
 ];
 
 export default function CurrencyFrequencyChart({ data }: CurrencyFrequencyChartProps) {
+  const total = data.reduce((sum, item) => sum + item.count, 0);
+  
   const chartData = {
-    labels: data.map((item) => item.currency),
+    labels: data.map((item) => {
+      const percentage = ((item.count / total) * 100).toFixed(1);
+      return `${item.currency} (${percentage}%)`;
+    }),
     datasets: [
       {
         label: "Conversions",
@@ -56,6 +61,8 @@ export default function CurrencyFrequencyChart({ data }: CurrencyFrequencyChartP
             size: 14,
           },
           padding: 15,
+          boxWidth: 15,
+          boxHeight: 15,
         },
       },
       tooltip: {
