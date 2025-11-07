@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/services/api";
 import type { AppMode, Wallet, ConversionRecord, CurrencyPairStat, CurrencyFrequency } from "@/types";
+import { conversionFormSchema } from "@/validation/schemas";
 
 export function useCurrencyConverter() {
   const [currencies, setCurrencies] = useState<string[]>([]);
@@ -76,12 +77,20 @@ export function useCurrencyConverter() {
   };
 
   const handleConvert = async (amountOverride?: number) => {
-    const amountNum = amountOverride ?? parseFloat(amount);
-    
-    if (!amountNum || amountNum <= 0) {
-      setError("Please enter a valid amount");
+    // Validate form inputs using Zod
+    const validationResult = conversionFormSchema.safeParse({
+      amount: amountOverride?.toString() ?? amount,
+      fromCurrency,
+      toCurrency,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.issues[0];
+      setError(firstError.message);
       return;
     }
+
+    const amountNum = amountOverride ?? parseFloat(amount);
 
     // Budget mode validation
     if (mode === "budget") {

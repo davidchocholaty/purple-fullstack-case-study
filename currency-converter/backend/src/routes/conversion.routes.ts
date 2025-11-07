@@ -4,41 +4,28 @@
 
 import { Router } from "express";
 import { asyncHandler } from "../middleware/errorHandler.js";
+import { validateBody } from "../middleware/validation.js";
 import { ExchangeRateService } from "../services/exchangeRateService.js";
 import { dbOperations } from "../server/db/database.js";
-import { isSupportedCurrency, SUPPORTED_CURRENCIES } from "../config/currencies.js";
+import { SUPPORTED_CURRENCIES } from "../config/currencies.js";
+import { convertRequestSchema } from "../validation/schemas.js";
 
 const router = Router();
 
 router.post(
   "/convert",
+  validateBody(convertRequestSchema),
   asyncHandler(async (req, res) => {
     const { from, to, amount } = req.body;
 
-    if (!from || !to || !amount || typeof from !== "string" || typeof to !== "string") {
-      res.status(400);
-      throw new Error("Missing required parameters: from, to, amount");
-    }
-
-    if (!isSupportedCurrency(from) || !isSupportedCurrency(to)) {
-      res.status(400);
-      throw new Error(`Currency must be one of: ${SUPPORTED_CURRENCIES.join(", ")}`);
-    }
-
-    const amountNum = typeof amount === "number" ? amount : parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      res.status(400);
-      throw new Error("Amount must be a positive number");
-    }
-
-    // Convert using cached exchange rates
-    const result = await ExchangeRateService.convert(from, to, amountNum);
+    // Convert using cached exchange rates (validation already done by middleware)
+    const result = await ExchangeRateService.convert(from, to, amount);
 
     // Save conversion to database
     dbOperations.insertConversion({
       fromCurrency: from,
       toCurrency: to,
-      amount: amountNum,
+      amount,
       convertedAmount: result.convertedAmount,
       rate: result.rate,
     });
