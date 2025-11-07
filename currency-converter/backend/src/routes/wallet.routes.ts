@@ -57,11 +57,9 @@ router.post(
         res.status(400);
         throw new Error(`Invalid balance value for currency ${currency}`);
       }
-    }
 
-    Object.entries(wallet).forEach(([currency, balance]) => {
       dbOperations.updateWalletBalance(currency, balance as number);
-    });
+    }
 
     res.json({ success: true });
   })
