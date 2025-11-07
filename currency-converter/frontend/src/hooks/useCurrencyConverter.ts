@@ -12,6 +12,7 @@ export function useCurrencyConverter() {
   const [fromCurrency, setFromCurrency] = useState("");
   const [toCurrency, setToCurrency] = useState("");
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState<Date | null>(null);
   const [conversionCount, setConversionCount] = useState<number | null>(null);
   const [mostUsedCurrency, setMostUsedCurrency] = useState<string | null>(null);
   const [recentConversions, setRecentConversions] = useState<ConversionRecord[]>([]);
@@ -107,6 +108,7 @@ export function useCurrencyConverter() {
     try {
       const data = await api.convertCurrency(fromCurrency, toCurrency, amountNum);
       setConvertedAmount(data.convertedAmount);
+      setRateUpdatedAt(new Date(data.updatedAt));
 
       // Update wallet in budget mode
       if (mode === "budget") {
@@ -180,6 +182,7 @@ export function useCurrencyConverter() {
     isLoading,
     error,
     currencies,
+    rateUpdatedAt,
     
     // Actions
     setMode,

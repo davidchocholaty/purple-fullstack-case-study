@@ -15,6 +15,7 @@ export default function Page() {
     fromCurrency,
     toCurrency,
     convertedAmount,
+    rateUpdatedAt,
     conversionCount,
     mostUsedCurrency,
     recentConversions,
@@ -80,6 +81,7 @@ export default function Page() {
           targetCurrency={toCurrency}
           conversionCount={conversionCount}
           mostUsedCurrency={mostUsedCurrency}
+          rateUpdatedAt={rateUpdatedAt}
         />
       )}
 
