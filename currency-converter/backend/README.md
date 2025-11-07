@@ -46,7 +46,7 @@ Each feature has its own route module:
 - `stats.routes.ts` - Statistics
 - `wallet.routes.ts` - Wallet operations
 
-### 3. **Exchange Rate Caching** ⚡
+### 3. **Exchange Rate Caching**
 
 The `ExchangeRateService` caches exchange rates for 1 hour:
 
