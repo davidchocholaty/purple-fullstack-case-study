@@ -40,7 +40,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const { wallet } = req.body;
     
-    if (!wallet || typeof wallet !== "object") {
+    if (!wallet || typeof wallet !== "object" || Array.isArray(wallet)) {
       res.status(400);
       throw new Error("Invalid wallet data");
     }
