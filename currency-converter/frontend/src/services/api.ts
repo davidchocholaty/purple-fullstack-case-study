@@ -44,10 +44,6 @@ export const api = {
     return fetchApi<Statistics>("/api/stats");
   },
 
-  async getConversionCount(): Promise<{ count: number }> {
-    return fetchApi<{ count: number }>("/api/stats/count");
-  },
-
   // Wallet endpoints
   async getWallet(): Promise<{ wallet: Wallet; initialized: boolean }> {
     return fetchApi<{ wallet: Wallet; initialized: boolean }>("/api/wallet");
