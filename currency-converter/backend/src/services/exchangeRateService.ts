@@ -33,23 +33,34 @@ export class ExchangeRateService {
       };
     }
 
-    // Fetch fresh rates
-    console.log("Fetching fresh exchange rates from API");
-    const response = await axios.get(`${OXR_BASE_URL}/latest.json`, {
-      params: { app_id: OXR_APP_ID },
-    });
-
-    // Update cache
-    cache = {
-      rates: response.data.rates,
-      timestamp: response.data.timestamp * 1000, // Convert to milliseconds
-      expiresAt: now + CACHE_DURATION_MS,
-    };
-
-    return {
-      rates: cache.rates,
-      timestamp: cache.timestamp,
-    };
+    // Fetch fresh rates with error handling
+    try {
+      console.log("Fetching fresh exchange rates from API");
+      const response = await axios.get(`${OXR_BASE_URL}/latest.json`, {
+        params: { app_id: OXR_APP_ID },
+      });
+      // Update cache
+      cache = {
+        rates: response.data.rates,
+        timestamp: response.data.timestamp * 1000, // Convert to milliseconds
+        expiresAt: now + CACHE_DURATION_MS,
+      };
+      return {
+        rates: cache.rates,
+        timestamp: cache.timestamp,
+      };
+    } catch (error) {
+      console.error("Failed to fetch exchange rates from API:", error);
+      if (cache) {
+        console.warn("Returning stale cached exchange rates due to API failure");
+        return {
+          rates: cache.rates,
+          timestamp: cache.timestamp,
+        };
+      } else {
+        throw new Error("Unable to fetch exchange rates and no cached data available.");
+      }
+    }
   }
 
   /**
