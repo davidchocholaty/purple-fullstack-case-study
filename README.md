@@ -122,86 +122,42 @@ currency-converter/
         └── types/        # TypeScript type definitions
 ```
 
-## Features
-
-- 💱 **Currency Conversion**: Real-time conversion using OpenExchangeRates API
-- 📊 **Statistics Dashboard**: Conversion history, most used currencies, pair statistics
-- 📈 **Visual Analytics**: Pie chart showing target currency frequency
-- 💰 **Budget Mode**: Virtual wallet with random balances for practice conversions
-- ⚡ **Performance**: 1-hour exchange rate caching (80x faster responses)
-- 🎨 **Modern UI**: Clean, responsive design with custom CSS
-- 🔒 **Type-Safe**: Full TypeScript coverage on both frontend and backend
-
 ## Technology Stack
 
 **Backend:**
-- Express.js - Web framework
-- TypeScript - Type safety
-- SQLite - Database (better-sqlite3)
-- Axios - HTTP client for external API
-- [OpenExchangeRates API](https://openexchangerates.org/) - Real-time exchange rates
-- Modular architecture with middleware and services
+- Express.js with REST API
+- TypeScript
+- SQLite Database (better-sqlite3)
+- Axios (HTTP client for external API)
+- [OpenExchangeRates API](https://openexchangerates.org/)
 
 **Frontend:**
-- Next.js 16 - React framework
-- React 19 - UI library
-- TypeScript - Type safety
-- Chart.js - Data visualization
-- Custom CSS - Styling
+- Next.js
+- React
+- TypeScript
+- Chart.js (data visualization)
+- Custom CSS
 
 ## Implemented App Extensions
+This section describes the implemented app extensions.
 
 ### Budget Mode
+- In this mode, the user has a randomly generated wallet with a certain amount of money for each currency. The user can transfer only the funds available in the wallet. The wallet can also be generated using the available button.
 
 ### Advanced Statistics
+- Advanced statistics, such as the most used target currency, statistics for each currency pair, and a table of recent conversions, are provided.
 
 ### Pie Chart
+- The pie chart shows the frequency of use of the target currency.
 
+### Exchange Rate Caching
+- To reduce the number of requests to the external API, rate caching is implemented and set to 1 hour.
 
 ## Technologies Selection and Implementation Approach
 This section describes the reasoning processes of using specific technology stack or using available tools for the tasks.
 
-### CSS Implementation Strategy
-
-The frontend currently uses **plain CSS** with a single `globals.css` file. This approach was chosen for the following reasons:
-
-**Current Implementation:**
-- Plain CSS in `globals.css` for all styles
-- 1:1 mapping with Figma design specifications
-- Direct translation of exact values (colors, spacing, typography)
-- Faster initial implementation when matching exact design specs
-
-**Recommended for Production:**
-
-However, for a production application or further development, the following improvements are recommended:
-
-1. **CSS Modules** (Recommended)
-   - Scoped styles per component
-   - Prevents naming conflicts
-   - Better maintainability and code organization
-   - Co-location of styles with components
-   - Example: `Button.module.css`, `Wallet.module.css`
-
-2. **Tailwind CSS** (Alternative)
-   - Utility-first CSS framework
-   - Faster development with pre-built utilities
-   - Smaller bundle size (tree-shaking unused styles)
-   - Design system consistency out of the box
-   - Better for rapid prototyping and iteration
-
-3. **CSS-in-JS** (e.g., styled-components, Emotion)
-   - Dynamic styling based on props
-   - Full TypeScript integration
-   - Runtime theme switching
-   - Better suited for complex component libraries
-
-**Why Not Used Initially:**
-- Figma provided exact pixel values that were easier to copy as plain CSS
-- Avoided additional build complexity during rapid prototyping
-- Direct translation ensured pixel-perfect match with design
-
-**Migration Path:**
-The current CSS can be easily refactored into CSS Modules or Tailwind CSS when scaling the application. See the "Potential Improvements" section for details on frontend refactoring.
+### Why use a simple CSS file with predefined rules?
+A simple ```globals.css``` file with predefined rules was used for simplicity and to match the original Figma design as closely as possible. A better approach would be to logically divide the design rules and also include the Tailwind CSS library.
 
 ### Why SQLite?
 
@@ -219,6 +175,9 @@ MongoDB Atlas would require:
 - Network dependency for local development
 - More complex setup for a simple case study
 
+### Why REST API instead of tRPC?
+The REST API was implemented with Express.js for a simple reason: the developer’s familiarity with these tools made the development process faster.
+
 ## API Documentation
 
 See [`backend/API.md`](currency-converter/backend/API.md) for complete API documentation.
@@ -231,241 +190,28 @@ See [`backend/API.md`](currency-converter/backend/API.md) for complete API docum
 
 ### AI Usage
 #### Cursor AI IDE
+- During the implementation process, I used the Cursor AI IDE along with its available AI agent. All subsequent AI usage, except for GitHub Copilot reviews, was done using this agent.
 
 #### CI Pipeline Creation
+- The AI agent was used during the creation of the CI pipeline. The task involved adapting my personal Python CI setup for the TypeScript frontend and backend.
 
 #### SQL Commands First Proposals
+- Because the app required basic SQL commands and the models are well-suited for SQL, the first SQL command prototypes were created by the AI agent to reduce implementation time for this core logic.
 
 #### Frontend CSS Stylization & Dynamic Color Handling for Graph
+- The AI was used to speed up the process of reimplementing the original Figma template into CSS styling. This was possible because the models perform well on this task and CSS is not a security-critical part of the code.
 
 #### Architectural Design Discussion
-
-#### Zod Validation Implementation
+- The architectural design and transformation from the base version to a more production-like structure were discussed with the Cursor AI agent, allowing it to recommend an optional monorepo structure and logic for potential future extensions.
 
 #### Code Refactorization
+- The AI agent was used to identify duplicated or optimizable parts of the code, enhancing a single developer’s capabilities without the need for another human reviewer. Also the agent was used for the first proposals of the possible restructuralization approaches.
 
 #### GitHub Copilot Reviews
+- During the implementation process, GitHub Copilot was used to review pull requests before they were merged into the main branch.
 
 #### JSDoc Documentation, Documentation Comments, and Frontend and Backend READMEs Generation
+- The first version of the README files was generated by the AI before custom changes and extensions were added. This was done to speed up the documentation process.
 
 #### Installation Script
-
-
-### Potential Improvements and Architecture Changes
-
-If the application were to be dramatically scaled and extended for production use with thousands of users, the following improvements should be considered:
-
-#### **Database & Data Layer**
-
-1. **Migrate to PostgreSQL or MySQL**
-   - SQLite is single-user and file-based; not suitable for concurrent users
-   - PostgreSQL offers better concurrency, replication, and horizontal scaling
-   - Add connection pooling for efficient database connections
-   - Implement read replicas for high-read workloads
-
-2. **Implement Database Migrations**
-   - Use tools like Knex.js, Prisma, or TypeORM
-   - Version-controlled schema changes for safe deployments
-   - Automated rollback capabilities
-
-3. **Add Caching Layer**
-   - Redis or Memcached for distributed caching
-   - Cache user sessions, frequently accessed data
-   - Pub/Sub for real-time features
-
-#### **Backend Architecture**
-
-4. **Microservices Architecture**
-   - Split into separate services: Exchange Rate Service, Wallet Service, Statistics Service
-   - Independent scaling based on load (e.g., scale conversion service separately)
-   - Message queue (RabbitMQ/Kafka) for inter-service communication
-
-5. **API Gateway**
-   - Implement API Gateway (Kong, Nginx) for routing, rate limiting, authentication
-   - Centralized logging and monitoring
-   - Request/response transformation
-
-6. **Authentication & Authorization**
-   - Implement JWT-based authentication
-   - Role-based access control (RBAC)
-   - OAuth2 integration for third-party login (Google, GitHub)
-   - API key management for external consumers
-
-7. **Rate Limiting & Throttling**
-   - Prevent API abuse with rate limiting per user/IP
-   - Different tiers for free/premium users
-   - Circuit breaker pattern for external API calls
-
-#### **Performance & Scalability**
-
-8. **Load Balancing**
-   - Multiple backend instances behind load balancer (Nginx, HAProxy)
-   - Health checks and automatic failover
-   - Session affinity if needed
-
-9. **Content Delivery Network (CDN)**
-   - Serve static assets (CSS, JS, images) via CDN (CloudFlare, AWS CloudFront)
-   - Reduce latency for global users
-   - Cache API responses at edge locations
-
-10. **Horizontal Scaling**
-    - Containerize with Docker
-    - Orchestrate with Kubernetes for auto-scaling
-    - Scale frontend and backend independently
-
-#### **Data & Analytics**
-
-11. **Time-Series Database**
-    - InfluxDB or TimescaleDB for conversion history and statistics
-    - Optimized for time-based queries and aggregations
-    - Better performance for analytics dashboards
-
-12. **Data Warehouse**
-    - Separate analytics database (Snowflake, BigQuery)
-    - ETL pipelines for business intelligence
-    - Historical data archival
-
-#### **Monitoring & Observability**
-
-13. **Comprehensive Logging**
-    - Structured logging with correlation IDs
-    - Centralized log aggregation (ELK Stack, Datadog, Grafana Loki)
-    - Log retention policies
-
-14. **Application Performance Monitoring (APM)**
-    - New Relic, Datadog, or Sentry for performance tracking
-    - Real-time error tracking and alerting
-    - Distributed tracing for microservices
-
-15. **Metrics & Dashboards**
-    - Prometheus + Grafana for metrics visualization
-    - Custom dashboards for business KPIs
-    - SLA monitoring and alerting
-
-#### **Security Enhancements**
-
-16. **Security Hardening**
-    - HTTPS/TLS for all communications
-    - Input validation and sanitization library (Joi, Zod)
-    - SQL injection prevention (already handled with prepared statements)
-    - XSS and CSRF protection
-    - Security headers (Helmet.js)
-    - Regular dependency updates and vulnerability scanning
-
-17. **Secrets Management**
-    - HashiCorp Vault or AWS Secrets Manager
-    - Rotate API keys and credentials automatically
-    - Never commit secrets to repository
-
-#### **Testing & Quality**
-
-18. **Comprehensive Testing**
-    - Unit tests (Jest) for all business logic (target: 80%+ coverage)
-    - Integration tests for API endpoints
-    - E2E tests (Playwright, Cypress) for critical user flows
-    - Load testing (k6, Artillery) for performance validation
-
-19. **CI/CD Pipeline Enhancements**
-    - Automated testing on every commit
-    - Staging environment for pre-production testing
-    - Blue-green or canary deployments
-    - Automated rollback on failures
-
-#### **Frontend Improvements**
-
-20. **State Management**
-    - Redux, Zustand, or Jotai for complex state
-    - Better handling of global state across components
-
-21. **Data Fetching**
-    - React Query or SWR for server state management
-    - Automatic caching, revalidation, and error handling
-    - Optimistic updates
-
-22. **Progressive Web App (PWA)**
-    - Offline support with Service Workers
-    - Push notifications for conversion alerts
-    - Add to home screen capability
-
-23. **Internationalization (i18n)**
-    - Support multiple languages (next-i18next)
-    - Currency formatting based on locale
-    - Right-to-left (RTL) language support
-
-#### **DevOps & Infrastructure**
-
-24. **Infrastructure as Code (IaC)**
-    - Terraform or AWS CloudFormation for reproducible infrastructure
-    - Version-controlled infrastructure changes
-
-25. **Backup & Disaster Recovery**
-    - Automated database backups
-    - Multi-region deployment for high availability
-    - Disaster recovery plan and regular testing
-
-26. **Environment Management**
-    - Separate environments: dev, staging, production
-    - Feature flags for gradual rollouts (LaunchDarkly)
-    - Configuration management per environment
-
-#### **Business Features**
-
-27. **User Accounts & Personalization**
-    - User registration and profiles
-    - Saved conversion history per user
-    - Favorite currency pairs
-    - Custom alerts for rate changes
-
-28. **Premium Features**
-    - Subscription model (Stripe integration)
-    - Historical rate data and trends
-    - Bulk conversions and CSV export
-    - API access for developers
-
-29. **Multi-Currency Wallet**
-    - Real money integration (with proper financial licensing)
-    - Transaction history and audit logs
-    - Compliance with financial regulations (KYC/AML)
-
-#### **API & Integration**
-
-30. **GraphQL API**
-    - Alternative to REST for flexible data fetching
-    - Reduce over-fetching and under-fetching
-    - Real-time subscriptions
-
-31. **Webhook Support**
-    - Notify external systems of conversion events
-    - Retry logic and delivery guarantees
-
-32. **Third-Party Integrations**
-    - Multiple exchange rate providers with fallback
-    - Payment gateways for real transactions
-    - Analytics tools (Google Analytics, Mixpanel)
-
-#### **Cost Optimization**
-
-33. **Resource Optimization**
-    - Serverless functions (AWS Lambda) for sporadic workloads
-    - Spot instances for non-critical batch jobs
-    - Database query optimization and indexing
-    - Automatic scaling based on traffic patterns
-
-#### **Compliance & Legal**
-
-34. **GDPR & Data Privacy**
-    - Data anonymization and retention policies
-    - User data export and deletion capabilities
-    - Cookie consent management
-    - Privacy policy and terms of service
-
----
-
-**Priority for Initial Scaling:**
-1. Database migration (PostgreSQL)
-2. Authentication & user accounts
-3. Load balancing & horizontal scaling
-4. Comprehensive logging & monitoring
-5. Automated testing & CI/CD
-
-**Estimated Timeline:** 3-6 months for production-ready scaling with a team of 3-5 developers.
+- The first version of the installation script was generated by the AI agent.
