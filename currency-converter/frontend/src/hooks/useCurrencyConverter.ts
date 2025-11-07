@@ -55,6 +55,7 @@ export function useCurrencyConverter() {
         }
       } catch (err) {
         console.error("Failed to load initial data:", err);
+        setError("Failed to load initial data. Please try again later.");
       }
     };
 
@@ -135,7 +136,7 @@ export function useCurrencyConverter() {
   const handleConvertAll = async () => {
     const amountToConvert = wallet[fromCurrency];
     
-    if (amountToConvert <= 0) {
+    if (amountToConvert === undefined || amountToConvert <= 0) {
       setError(`No ${fromCurrency} balance to convert`);
       return;
     }
