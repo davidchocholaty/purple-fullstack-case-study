@@ -19,11 +19,11 @@ export default function Table<T>({
   title,
   className = "" 
 }: TableProps<T>) {
-  const getValue = (row: T, column: TableColumn<T>) => {
+  const getValue = (row: T, column: TableColumn<T>): ReactNode => {
     if (typeof column.accessor === "function") {
       return column.accessor(row);
     }
-    return row[column.accessor];
+    return row[column.accessor] as ReactNode;
   };
 
   return (
@@ -42,7 +42,7 @@ export default function Table<T>({
             <tr key={rowIndex}>
               {columns.map((column, colIndex) => {
                 const value = getValue(row, column);
-                const rendered = column.render 
+                const rendered: ReactNode = column.render 
                   ? column.render(value, row)
                   : value;
                 
