@@ -19,10 +19,37 @@ interface ExchangeRatesCache {
 let cache: ExchangeRatesCache | null = null;
 let pendingFetch: Promise<{ rates: Record<string, number>; timestamp: number }> | null = null;
 
+/**
+ * Service for fetching and caching exchange rates from OpenExchangeRates API
+ * 
+ * Features:
+ * - Automatic caching with configurable TTL (default: 1 hour)
+ * - Request deduplication to prevent concurrent API calls
+ * - Fallback to stale cache on API failure
+ * 
+ * @example
+ * ```typescript
+ * // Convert currency
+ * const result = await ExchangeRateService.convert("USD", "EUR", 100);
+ * console.log(result.convertedAmount); // 92.50
+ * 
+ * // Get raw rates
+ * const { rates } = await ExchangeRateService.getRates();
+ * console.log(rates.EUR); // 0.925
+ * ```
+ */
 export class ExchangeRateService {
   /**
    * Fetches exchange rates with caching and request deduplication
-   * Prevents race conditions when multiple requests occur simultaneously
+   * 
+   * @returns Promise containing exchange rates and timestamp
+   * @throws Error if API fails and no cached data is available
+   * 
+   * @remarks
+   * - Returns cached data if still valid (within TTL)
+   * - Deduplicates concurrent requests (only one API call per cache expiry)
+   * - Falls back to stale cache if API fails
+   * - Cache expires after 1 hour (configurable via config)
    */
   static async getRates(): Promise<{ rates: Record<string, number>; timestamp: number }> {
     const now = Date.now();
@@ -84,7 +111,26 @@ export class ExchangeRateService {
   }
 
   /**
-   * Converts amount from one currency to another
+   * Converts an amount from one currency to another using current exchange rates
+   * 
+   * @param from - Source currency code (e.g., "USD")
+   * @param to - Target currency code (e.g., "EUR")
+   * @param amount - Amount to convert (must be positive)
+   * @returns Conversion result with rate and converted amount
+   * @throws Error if currency codes are invalid or API fails
+   * 
+   * @example
+   * ```typescript
+   * const result = await ExchangeRateService.convert("USD", "EUR", 100);
+   * // {
+   * //   from: "USD",
+   * //   to: "EUR",
+   * //   amount: 100,
+   * //   convertedAmount: 92.50,
+   * //   rate: 0.925,
+   * //   updatedAt: Date(...)
+   * // }
+   * ```
    */
   static async convert(from: string, to: string, amount: number) {
     const { rates, timestamp } = await this.getRates();
@@ -107,7 +153,18 @@ export class ExchangeRateService {
   }
 
   /**
-   * Clears the cache and any pending fetch (useful for testing or manual refresh)
+   * Clears the exchange rate cache and any pending fetch
+   * 
+   * @remarks
+   * Useful for testing or forcing a fresh API call on the next request.
+   * In production, cache expires automatically after the configured TTL.
+   * 
+   * @example
+   * ```typescript
+   * // Force fresh data on next request
+   * ExchangeRateService.clearCache();
+   * const rates = await ExchangeRateService.getRates(); // Fetches from API
+   * ```
    */
   static clearCache(): void {
     cache = null;

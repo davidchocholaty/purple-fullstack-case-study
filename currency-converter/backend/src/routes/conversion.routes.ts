@@ -1,5 +1,8 @@
 /**
  * Currency conversion routes
+ * 
+ * Handles currency conversion and retrieval of supported currencies
+ * Uses cached exchange rates from OpenExchangeRates API
  */
 
 import { Router } from "express";
@@ -10,6 +13,18 @@ import { isSupportedCurrency, SUPPORTED_CURRENCIES } from "../config/currencies.
 
 const router = Router();
 
+/**
+ * POST /api/convert
+ * Converts an amount from one currency to another
+ * 
+ * @body {string} from - Source currency code (3 letters)
+ * @body {string} to - Target currency code (3 letters)
+ * @body {number} amount - Amount to convert (positive number)
+ * 
+ * @returns {object} Conversion result with rate and converted amount
+ * @throws {400} Missing or invalid parameters
+ * @throws {500} API or server error
+ */
 router.post(
   "/convert",
   asyncHandler(async (req, res) => {
@@ -47,6 +62,12 @@ router.post(
   })
 );
 
+/**
+ * GET /api/currencies
+ * Returns the list of all supported currencies
+ * 
+ * @returns {object} Object containing array of currency codes
+ */
 router.get(
   "/currencies",
   asyncHandler(async (_req, res) => {
