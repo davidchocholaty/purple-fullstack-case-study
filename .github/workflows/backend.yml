@@ -52,7 +52,7 @@ jobs:
         working-directory: currency-converter/backend
         run: npm test -- --ci --reporters=default --reporters=jest-junit
 
-      # Optional: build (if you compile backend TS)
+      # Build backend
       - name: Build backend
         working-directory: currency-converter/backend
         run: npm run build

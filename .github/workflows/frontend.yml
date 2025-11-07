@@ -47,7 +47,7 @@ jobs:
         working-directory: currency-converter/frontend
         run: npm run type-check
 
-      # Run tests (e.g. Jest or Vitest)
+      # Run tests (Jest)
       - name: Run tests
         working-directory: currency-converter/frontend
         run: npm test -- --ci --reporters=default --reporters=jest-junit
