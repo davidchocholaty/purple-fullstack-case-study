@@ -18,19 +18,45 @@ interface CurrencyFrequencyChartProps {
   data: Array<{ currency: string; count: number }>;
 }
 
-const CHART_COLORS = [
-  "#522473",
-  "#7B3A9E",
-  "#A450C9",
-  "#CD66F4",
-  "#E88CFF",
-  "#F4B2FF",
-  "#FAD8FF",
-  "#FFE4FF",
+// Original color palette for reference
+const BASE_COLORS = [
+  "#522473", "#7B3A9E", "#A450C9", "#CD66F4",
+  "#E88CFF", "#F4B2FF", "#FAD8FF", "#FFE4FF",
 ];
+
+// Generate colors dynamically based on purple theme
+const generateColors = (count: number): string[] => {
+  // If count matches or is less than base palette, use base colors
+  if (count <= BASE_COLORS.length) {
+    return BASE_COLORS.slice(0, count);
+  }
+  
+  // For more colors, interpolate between base colors
+  const colors: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const position = (i / (count - 1)) * (BASE_COLORS.length - 1);
+    const lowerIndex = Math.floor(position);
+    const upperIndex = Math.min(lowerIndex + 1, BASE_COLORS.length - 1);
+    const fraction = position - lowerIndex;
+    
+    // Simple interpolation for now, or just cycle through
+    if (fraction === 0 || lowerIndex === upperIndex) {
+      colors.push(BASE_COLORS[lowerIndex]);
+    } else {
+      // Interpolate using HSL for smooth gradient
+      const baseHue = 285;
+      const saturation = 40 + (i % 3) * 10;
+      const lightness = 25 + (i * (65 / count));
+      colors.push(`hsl(${baseHue}, ${saturation}%, ${lightness}%)`);
+    }
+  }
+  
+  return colors;
+};
 
 export default function CurrencyFrequencyChart({ data }: CurrencyFrequencyChartProps) {
   const total = data.reduce((sum, item) => sum + item.count, 0);
+  const colors = generateColors(data.length);
   
   const chartData = {
     labels: data.map((item) => {
@@ -41,7 +67,7 @@ export default function CurrencyFrequencyChart({ data }: CurrencyFrequencyChartP
       {
         label: "Conversions",
         data: data.map((item) => item.count),
-        backgroundColor: CHART_COLORS.slice(0, data.length),
+        backgroundColor: colors,
         borderColor: "#ffffff",
         borderWidth: 2,
       },
