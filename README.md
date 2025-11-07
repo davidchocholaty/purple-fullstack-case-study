@@ -1,6 +1,10 @@
 # Purple Full Stack Case Study
 This repository contains code for the Fullstack Developer case study completed by David Chocholatý during the hiring process at Purple Technology.
 
+## Web Application Screenshot
+
+![Currency Converter Application](docs/images/screenshot.png)
+
 ## Installation and Running
 
 This tutorial was tested on **Ubuntu 24.04.2 LTS**. 
