@@ -33,7 +33,7 @@ export default function Table<T>({
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={`header-${index}`}>{column.header}</th>
+              <th key={column.header}>{column.header}</th>
             ))}
           </tr>
         </thead>
