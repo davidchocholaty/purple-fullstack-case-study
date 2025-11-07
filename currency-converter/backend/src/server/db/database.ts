@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import { mkdirSync } from "fs";
 import { createTableSQL, createIndexSQL } from "./schema.js";
 import type { ConversionRecord } from "./schema.js";
 
@@ -9,6 +10,18 @@ const __dirname = path.dirname(__filename);
 
 // Initialize database
 const dbPath = path.join(__dirname, "../../../data/conversions.db");
+const dbDir = path.dirname(dbPath);
+
+// Create data directory if it doesn't exist
+try {
+  mkdirSync(dbDir, { recursive: true });
+} catch (err) {
+  // Ignore error if directory already exists, log others
+  if (err instanceof Error && 'code' in err && err.code !== "EEXIST") {
+    console.error(`Failed to create data directory "${dbDir}":`, err);
+  }
+}
+
 const db = new Database(dbPath);
 
 // Enable foreign keys and WAL mode for better performance
