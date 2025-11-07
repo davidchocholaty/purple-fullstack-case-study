@@ -4,8 +4,10 @@
 
 import { Router } from "express";
 import { asyncHandler } from "../middleware/errorHandler.js";
+import { validateBody } from "../middleware/validation.js";
 import { dbOperations } from "../server/db/database.js";
-import { SUPPORTED_CURRENCIES, isSupportedCurrency } from "../config/currencies.js";
+import { SUPPORTED_CURRENCIES } from "../config/currencies.js";
+import { updateWalletRequestSchema } from "../validation/schemas.js";
 
 const router = Router();
 
@@ -37,29 +39,14 @@ router.post(
 
 router.post(
   "/wallet/update",
+  validateBody(updateWalletRequestSchema),
   asyncHandler(async (req, res) => {
     const { wallet } = req.body;
-    
-    if (!wallet || typeof wallet !== "object" || Array.isArray(wallet)) {
-      res.status(400);
-      throw new Error("Invalid wallet data");
-    }
 
-    for (const [currency, balance] of Object.entries(wallet)) {
-      // Validate currency is supported
-      if (!isSupportedCurrency(currency)) {
-        res.status(400);
-        throw new Error(`Unsupported currency: ${currency}. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`);
-      }
-      
-      // Validate balance is a valid number
-      if (typeof balance !== "number" || balance < 0) {
-        res.status(400);
-        throw new Error(`Invalid balance value for currency ${currency}`);
-      }
-
+    // Update wallet balances (validation already done by middleware)
+    Object.entries(wallet).forEach(([currency, balance]) => {
       dbOperations.updateWalletBalance(currency, balance as number);
-    }
+    });
 
     res.json({ success: true });
   })
