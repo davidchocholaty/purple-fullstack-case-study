@@ -9,6 +9,27 @@ import type { ZodSchema } from "zod";
 import { ZodError } from "zod";
 
 /**
+ * Shared error handler for validation errors
+ * 
+ * @param error - The error object
+ * @param res - Express response
+ * @param next - Express next function
+ */
+function handleValidationError(error: unknown, res: Response, next: NextFunction): void {
+  if (error instanceof ZodError) {
+    res.status(400).json({
+      error: "Validation failed",
+      details: error.issues.map((err) => ({
+        path: err.path.join("."),
+        message: err.message,
+      })),
+    });
+    return; // Explicit return to prevent further execution
+  }
+  next(error);
+}
+
+/**
  * Creates middleware that validates request body against a Zod schema
  * 
  * @param schema - Zod schema to validate against
@@ -28,17 +49,7 @@ export function validateBody<T>(schema: ZodSchema<T>) {
       schema.parse(req.body);
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({
-          error: "Validation failed",
-          details: error.issues.map((err) => ({
-            path: err.path.join("."),
-            message: err.message,
-          })),
-        });
-      } else {
-        next(error);
-      }
+      handleValidationError(error, res, next);
     }
   };
 }
@@ -55,17 +66,7 @@ export function validateQuery<T>(schema: ZodSchema<T>) {
       schema.parse(req.query);
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({
-          error: "Validation failed",
-          details: error.issues.map((err) => ({
-            path: err.path.join("."),
-            message: err.message,
-          })),
-        });
-      } else {
-        next(error);
-      }
+      handleValidationError(error, res, next);
     }
   };
 }
@@ -82,17 +83,7 @@ export function validateParams<T>(schema: ZodSchema<T>) {
       schema.parse(req.params);
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({
-          error: "Validation failed",
-          details: error.issues.map((err) => ({
-            path: err.path.join("."),
-            message: err.message,
-          })),
-        });
-      } else {
-        next(error);
-      }
+      handleValidationError(error, res, next);
     }
   };
 }
