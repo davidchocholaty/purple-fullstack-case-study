@@ -42,8 +42,7 @@ html {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding: 40px 16px;
   overflow-x: auto;
 }
 
