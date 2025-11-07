@@ -61,6 +61,17 @@ app.post("/api/convert", async (req, res) => {
   }
 });
 
+app.get("/api/currencies", async (_req, res) => {
+  try {
+    // Define supported currencies - could also come from database or config
+    const currencies = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY"];
+    res.json({ currencies });
+  } catch (error) {
+    console.error("Error fetching currencies:", error);
+    res.status(500).json({ error: "Failed to fetch currencies" });
+  }
+});
+
 app.get("/api/stats/count", async (_req, res) => {
   try {
     const count = dbOperations.getConversionCount();
