@@ -15,8 +15,11 @@ const dbDir = path.dirname(dbPath);
 // Create data directory if it doesn't exist
 try {
   mkdirSync(dbDir, { recursive: true });
-} catch {
-  // Directory already exists or other error - SQLite will handle it
+} catch (err) {
+  // Ignore error if directory already exists, log others
+  if (err instanceof Error && 'code' in err && err.code !== "EEXIST") {
+    console.error(`Failed to create data directory "${dbDir}":`, err);
+  }
 }
 
 const db = new Database(dbPath);
