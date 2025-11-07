@@ -26,6 +26,10 @@ const BASE_COLORS = [
 
 // Generate colors dynamically based on purple theme
 const generateColors = (count: number): string[] => {
+  // Handle edge cases
+  if (count === 0) return [];
+  if (count === 1) return [BASE_COLORS[0]];
+  
   // If count matches or is less than base palette, use base colors
   if (count <= BASE_COLORS.length) {
     return BASE_COLORS.slice(0, count);
