@@ -77,16 +77,24 @@ html {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .mode-button:hover {
   background: rgba(82, 36, 115, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0px 2px 4px 0px rgba(82, 36, 115, 0.2);
 }
 
 .mode-button.active {
   background: #522473;
   color: #ffffff;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.mode-button.active:hover {
+  background: #3a1a54;
 }
 
 /* Wallet display */
@@ -115,29 +123,32 @@ html {
   margin: 0;
 }
 
+/* Wallet reset button uses the button system */
 .reset-wallet-button {
-  background: linear-gradient(135deg, #7B3A9E 0%, #522473 100%);
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
+  /* Extends btn-outline with small size */
+  background: transparent;
+  color: #522473;
+  border: 2px solid #522473;
+  border-radius: 6px;
+  padding: 0 16px;
+  height: 36px;
   font-family: Roboto, sans-serif;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0px 2px 8px 0px rgba(82, 36, 115, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
 .reset-wallet-button:hover {
-  background: linear-gradient(135deg, #522473 0%, #3a1a54 100%);
-  transform: translateY(-2px);
-  box-shadow: 0px 4px 12px 0px rgba(82, 36, 115, 0.4);
+  background: rgba(82, 36, 115, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0px 2px 4px 0px rgba(82, 36, 115, 0.2);
 }
 
 .reset-wallet-button:active {
   transform: translateY(0);
-  box-shadow: 0px 2px 6px 0px rgba(82, 36, 115, 0.3);
+  box-shadow: none;
 }
 
 .wallet-balances {
@@ -243,13 +254,81 @@ html {
   cursor: pointer;
 }
 
-.button-group {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+/* Button System */
+.btn {
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
 }
 
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button Sizes */
+.btn-medium {
+  height: 52px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
+.btn-small {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* Button Variants */
+.btn-primary {
+  background: #522473;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #3a1a54;
+}
+
+.btn-secondary {
+  background: #7B3A9E;
+  color: #ffffff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #522473;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #522473;
+  border: 2px solid #522473;
+  box-shadow: none;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: rgba(82, 36, 115, 0.1);
+  box-shadow: 0px 2px 4px 0px rgba(82, 36, 115, 0.2);
+}
+
+/* Legacy support - map old classes to new system */
 .convert-button {
   background: #522473;
   width: 167px;
@@ -267,6 +346,7 @@ html {
   font-size: 15px;
   color: #ffffff;
   margin-top: 12px;
+  transition: all 0.2s ease;
 }
 
 .convert-all-button {
@@ -275,18 +355,26 @@ html {
   padding: 0 20px;
 }
 
-.convert-button:hover {
-  opacity: 0.9;
+.convert-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 4px 6px 8px 0px #0000001C;
 }
 
-.convert-button:active {
-  transform: translateY(1px);
+.convert-button:active:not(:disabled) {
+  transform: translateY(0);
   box-shadow: 2px 2px 4px 0px #0000001C;
 }
 
 .convert-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .error-message {

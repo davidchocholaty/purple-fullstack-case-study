@@ -3,18 +3,27 @@ import { publicProcedure, router } from "../trpc.js";
 import { z } from "zod";
 import axios from "axios";
 import { dbOperations } from "../db/database.js";
+import { SUPPORTED_CURRENCIES, isSupportedCurrency } from "../../config/currencies.js";
 
 const OXR_BASE_URL = "https://openexchangerates.org/api";
 const OXR_APP_ID = process.env.OXR_APP_ID!;
 
 const exchangeInputSchema = z.object({
-  from: z.string().length(3),
-  to: z.string().length(3),
+  from: z.string().length(3).refine(isSupportedCurrency, {
+    message: `Currency must be one of: ${SUPPORTED_CURRENCIES.join(", ")}`,
+  }),
+  to: z.string().length(3).refine(isSupportedCurrency, {
+    message: `Currency must be one of: ${SUPPORTED_CURRENCIES.join(", ")}`,
+  }),
 });
 
 const convertInputSchema = z.object({
-  from: z.string().length(3),
-  to: z.string().length(3),
+  from: z.string().length(3).refine(isSupportedCurrency, {
+    message: `Currency must be one of: ${SUPPORTED_CURRENCIES.join(", ")}`,
+  }),
+  to: z.string().length(3).refine(isSupportedCurrency, {
+    message: `Currency must be one of: ${SUPPORTED_CURRENCIES.join(", ")}`,
+  }),
   amount: z.number().positive(),
 });
 

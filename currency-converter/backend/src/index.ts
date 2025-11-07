@@ -4,6 +4,7 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouter } from "./server/routers/_app.js";
 import { createContext } from "./server/context.js";
 import { dbOperations } from "./server/db/database.js";
+import { SUPPORTED_CURRENCIES } from "./config/currencies.js";
 
 const app = express();
 
@@ -61,6 +62,15 @@ app.post("/api/convert", async (req, res) => {
   }
 });
 
+app.get("/api/currencies", async (_req, res) => {
+  try {
+    res.json({ currencies: SUPPORTED_CURRENCIES });
+  } catch (error) {
+    console.error("Error fetching currencies:", error);
+    res.status(500).json({ error: "Failed to fetch currencies" });
+  }
+});
+
 app.get("/api/stats/count", async (_req, res) => {
   try {
     const count = dbOperations.getConversionCount();
@@ -93,11 +103,8 @@ app.get("/api/wallet", async (_req, res) => {
 
 app.post("/api/wallet/initialize", async (req, res) => {
   try {
-    const { currencies } = req.body;
-    if (!currencies || !Array.isArray(currencies)) {
-      return res.status(400).json({ error: "Invalid currencies array" });
-    }
-    dbOperations.initializeWallet(currencies);
+    // Always use supported currencies from config
+    dbOperations.initializeWallet([...SUPPORTED_CURRENCIES]);
     const wallet = dbOperations.getWallet();
     res.json({ wallet });
   } catch (error) {
@@ -108,11 +115,8 @@ app.post("/api/wallet/initialize", async (req, res) => {
 
 app.post("/api/wallet/reset", async (req, res) => {
   try {
-    const { currencies } = req.body;
-    if (!currencies || !Array.isArray(currencies)) {
-      return res.status(400).json({ error: "Invalid currencies array" });
-    }
-    dbOperations.resetWallet(currencies);
+    // Always use supported currencies from config
+    dbOperations.resetWallet([...SUPPORTED_CURRENCIES]);
     const wallet = dbOperations.getWallet();
     res.json({ wallet });
   } catch (error) {
