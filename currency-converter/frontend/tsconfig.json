@@ -8,6 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "strict": false,
     "noEmit": true,
     "incremental": true,
@@ -35,6 +36,7 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "../backend/**/*"
   ]
 }
