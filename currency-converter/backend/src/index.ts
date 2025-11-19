@@ -3,38 +3,69 @@
  */
 
 import "dotenv/config";
-import express from "express";
+import { createServer, IncomingMessage, ServerResponse } from "http";
+import { nodeHTTPRequestHandler } from "@trpc/server/adapters/node-http";
 import { config } from "./config/index.js";
-import { corsMiddleware } from "./middleware/cors.js";
-import { errorHandler } from "./middleware/errorHandler.js";
-import conversionRoutes from "./routes/conversion.routes.js";
-import statsRoutes from "./routes/stats.routes.js";
-import walletRoutes from "./routes/wallet.routes.js";
+import { appRouter } from "./server/routers/_app.js";
+import { createContext } from "./server/trpc.js";
 
-const app = express();
+const server = createServer((req: IncomingMessage, res: ServerResponse) => {
+  // Handle CORS
+  const origin = req.headers.origin;
+  if (origin === config.corsOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
 
-// Middleware
-app.use(corsMiddleware);
-app.use(express.json());
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
 
-// Routes
-app.get("/", (_req, res) => {
-  res.json({
-    message: "Currency Converter API",
-    version: "1.0.0",
-    status: "running",
-  });
+  // Health check endpoint
+  if (req.url === "/" && req.method === "GET") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        message: "Currency Converter API",
+        version: "1.0.0",
+        status: "running",
+      })
+    );
+    return;
+  }
+
+  // tRPC endpoint
+  if (req.url?.startsWith("/trpc")) {
+    // Extract path from URL (remove /trpc prefix and query string)
+    const urlPath = req.url.split("?")[0]; // Remove query string
+    let path = urlPath.replace(/^\/trpc\/?/, ""); // Remove /trpc prefix
+    
+    // Debug logging
+    // console.log(`[tRPC] ${req.method} ${req.url} -> path: "${path}"`);
+    
+    nodeHTTPRequestHandler({
+      router: appRouter,
+      createContext,
+      req,
+      res,
+      path,
+    });
+    return;
+  }
+
+  // 404 for other routes
+  res.writeHead(404, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "Not found" }));
 });
 
-app.use("/api", conversionRoutes);
-app.use("/api", statsRoutes);
-app.use("/api", walletRoutes);
-
-// Error handler (must be last)
-app.use(errorHandler);
-
 // Start server
-app.listen(config.port, () => {
+server.listen(config.port, () => {
   console.log(`- Server running on http://localhost:${config.port}`);
   console.log(`- CORS enabled for: ${config.corsOrigin}`);
+  console.log(`- tRPC endpoint: http://localhost:${config.port}/trpc`);
 });

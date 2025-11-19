@@ -4,7 +4,7 @@ This document describes the architecture of the Currency Converter backend.
 
 ## Overview
 
-The backend is built with **Express.js**.
+The backend is built with **native tRPC** using Node.js's built-in HTTP module. No Express.js or other HTTP framework is used.
 
 ## Project Structure
 
@@ -13,38 +13,41 @@ src/
 ├── config/                 # Configuration
 │   ├── index.ts           # App config (ports, URLs, etc.)
 │   └── currencies.ts      # Supported currencies
-├── middleware/            # Express middleware
-│   ├── cors.ts           # CORS configuration
-│   └── errorHandler.ts   # Error handling & async wrapper
-├── routes/               # Route modules
-│   ├── conversion.routes.ts  # Currency conversion
-│   ├── stats.routes.ts       # Statistics
-│   └── wallet.routes.ts      # Wallet management
-├── services/             # Business logic
-│   └── exchangeRateService.ts # Exchange rate API + caching
 ├── server/
-│   └── db/              # Database
-│       ├── database.ts  # SQLite operations
-│       └── schema.ts    # Database schema
-└── index.ts             # Main server entry point
+│   ├── routers/           # tRPC routers
+│   │   ├── _app.ts        # Main app router (combines all routers)
+│   │   ├── conversion.ts  # Currency conversion procedures
+│   │   ├── stats.ts       # Statistics procedures
+│   │   └── wallet.ts      # Wallet procedures
+│   ├── trpc.ts            # tRPC initialization and context
+│   └── db/                # Database
+│       ├── database.ts    # SQLite operations
+│       └── schema.ts      # Database schema
+├── services/              # Business logic
+│   └── exchangeRateService.ts # Exchange rate API + caching
+├── validation/            # Zod validation schemas
+│   └── schemas.ts         # Request validation schemas
+└── index.ts               # Main server entry point (HTTP server)
 ```
 
 ## Architecture Principles
 
 ### 1. **Separation of Concerns**
 
-- **Routes**: Handle HTTP requests/responses
+- **Routers**: tRPC procedures (type-safe API endpoints)
 - **Services**: Business logic and external API calls
 - **Database**: Data persistence and queries
-- **Middleware**: Cross-cutting concerns (CORS, errors)
+- **Validation**: Zod schemas for input validation
 - **Config**: Centralized configuration
 
-### 2. **Modular Routes**
+### 2. **Modular tRPC Routers**
 
-Each feature has its own route module:
-- `conversion.routes.ts` - Currency conversions
-- `stats.routes.ts` - Statistics
-- `wallet.routes.ts` - Wallet operations
+Each feature has its own tRPC router:
+- `conversion.ts` - Currency conversion procedures
+- `stats.ts` - Statistics procedures
+- `wallet.ts` - Wallet procedures
+
+All routers are combined in `_app.ts` to create the main app router.
 
 ### 3. **Exchange Rate Caching**
 
@@ -90,27 +93,35 @@ Optional:
 - `CORS_ORIGIN` - CORS origin (default: http://localhost:3000)
 - `NODE_ENV` - Environment (development/production)
 
-## Adding a New Endpoint
+## Adding a New Procedure
 
-1. Create/update route file in `routes/`
-2. Use `asyncHandler` wrapper
-3. Implement business logic in `services/` if complex
-4. Update `API.md` documentation
+1. Create/update router file in `server/routers/`
+2. Define Zod input schema in `validation/schemas.ts`
+3. Use `publicProcedure.input(schema)` for validation
+4. Implement business logic in `services/` if complex
+5. Export router and add to `_app.ts`
 
 Example:
 ```typescript
-// routes/example.routes.ts
-import { Router } from "express";
-import { asyncHandler } from "../middleware/errorHandler.js";
+// server/routers/example.ts
+import { z } from "zod";
+import { router, publicProcedure } from "../trpc.js";
 
-const router = Router();
+export const exampleRouter = router({
+  getExample: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .query(({ input }) => {
+      return { message: `Hello ${input.name}` };
+    }),
+});
 
-router.get("/example", asyncHandler(async (req, res) => {
-  // Your logic here
-  res.json({ message: "Hello" });
-}));
+// server/routers/_app.ts
+import { exampleRouter } from "./example.js";
 
-export default router;
+export const appRouter = router({
+  // ... other routers
+  example: exampleRouter,
+});
 ```
 
 ## Future Improvements

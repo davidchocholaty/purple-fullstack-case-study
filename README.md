@@ -76,7 +76,7 @@ npm run dev
 ```
 
 This will run:
-- Backend on `http://localhost:4000`
+- Backend on `http://localhost:4000` (tRPC endpoint: `/trpc`)
 - Frontend on `http://localhost:3000`
 
 Then open your browser and navigate to `http://localhost:3000`
@@ -114,27 +114,28 @@ cd frontend && npm start
 
 ```
 currency-converter/
-├── backend/          # Express.js + TypeScript backend
+├── backend/          # Native tRPC + TypeScript backend
 │   ├── src/
 │   │   ├── config/       # Configuration (currencies, app config)
-│   │   ├── middleware/   # CORS, error handling
-│   │   ├── routes/       # API routes (conversion, stats, wallet)
+│   │   ├── server/
+│   │   │   ├── routers/  # tRPC routers (conversion, stats, wallet)
+│   │   │   └── db/       # SQLite database operations
 │   │   ├── services/     # Business logic (exchange rate service)
-│   │   └── server/db/    # SQLite database operations
+│   │   └── validation/   # Zod validation schemas
 │   └── data/         # SQLite database file
 └── frontend/         # Next.js + React + TypeScript frontend
     └── src/
         ├── app/          # Next.js App Router pages
         ├── components/   # React components
         ├── hooks/        # Custom React hooks
-        ├── services/     # API service layer
+        ├── utils/        # tRPC client setup
         └── types/        # TypeScript type definitions
 ```
 
 ## Technology Stack
 
 **Backend:**
-- Express.js with REST API
+- Native tRPC server (Node.js HTTP)
 - TypeScript
 - SQLite Database (better-sqlite3)
 - Axios (HTTP client for external API)
@@ -144,6 +145,7 @@ currency-converter/
 - Next.js
 - React
 - TypeScript
+- tRPC Client with React Query
 - Chart.js (data visualization)
 - Custom CSS
 
@@ -184,8 +186,6 @@ MongoDB Atlas would require:
 - Network dependency for local development
 - More complex setup for a simple case study
 
-### Why REST API instead of tRPC?
-The REST API was implemented with Express.js for a simple reason: the developer’s familiarity with these tools made the development process faster.
 
 ## Architecture Documentation
 
