@@ -4,7 +4,6 @@
  * Manages user virtual wallet for Budget Mode feature
  */
 
-import { z } from "zod";
 import { router, publicProcedure } from "../trpc.js";
 import { dbOperations } from "../../server/db/database.js";
 import { SUPPORTED_CURRENCIES } from "../../config/currencies.js";

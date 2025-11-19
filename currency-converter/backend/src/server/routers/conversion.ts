@@ -4,7 +4,6 @@
  * Handles currency conversion and retrieval of supported currencies
  */
 
-import { z } from "zod";
 import { router, publicProcedure } from "../trpc.js";
 import { ExchangeRateService } from "../../services/exchangeRateService.js";
 import { dbOperations } from "../../server/db/database.js";

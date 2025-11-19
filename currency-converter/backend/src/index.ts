@@ -3,7 +3,8 @@
  */
 
 import "dotenv/config";
-import { createServer, IncomingMessage, ServerResponse } from "http";
+import { createServer } from "http";
+import type { IncomingMessage, ServerResponse } from "http";
 import { nodeHTTPRequestHandler } from "@trpc/server/adapters/node-http";
 import { config } from "./config/index.js";
 import { appRouter } from "./server/routers/_app.js";
@@ -43,12 +44,12 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   if (req.url?.startsWith("/trpc")) {
     // Extract path from URL (remove /trpc prefix and query string)
     const urlPath = req.url.split("?")[0]; // Remove query string
-    let path = urlPath.replace(/^\/trpc\/?/, ""); // Remove /trpc prefix
+    const path = urlPath.replace(/^\/trpc\/?/, ""); // Remove /trpc prefix
     
     // Debug logging
     // console.log(`[tRPC] ${req.method} ${req.url} -> path: "${path}"`);
     
-    nodeHTTPRequestHandler({
+    void nodeHTTPRequestHandler({
       router: appRouter,
       createContext,
       req,
